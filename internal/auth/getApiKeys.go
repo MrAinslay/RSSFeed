@@ -4,6 +4,6 @@ import (
 	"net/http"
 )
 
-func GetUserApiKey(r http.Header) error {
+func Auth(r http.Header) error {
 
 }
