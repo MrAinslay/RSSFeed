@@ -46,5 +46,5 @@ func (cfg *apiConfig) crtUsrHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *apiConfig) getUserByKey(w http.ResponseWritter r *http.Request) {
- 
+ auth.ApiKeyToUser(r.Header)
 }
