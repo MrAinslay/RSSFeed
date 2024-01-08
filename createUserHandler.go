@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/MrAinslay/RSSFeed/internal/auth"
 	"github.com/MrAinslay/RSSFeed/internal/database"
 	"github.com/google/uuid"
 )
@@ -45,6 +46,22 @@ func (cfg *apiConfig) crtUsrHandler(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, 200, databaseUserToUser(usr))
 }
 
-func (cfg *apiConfig) getUserByKey(w http.ResponseWritter r *http.Request) {
- auth.ApiKeyToUser(r.Header)
+func (cfg *apiConfig) getUserByKey(w http.ResponseWriter, r *http.Request) {
+	apiKey, err := auth.GetApiKey(r.Header)
+	if err != nil {
+		log.Printf("error retrieving api key: %v", err)
+		respondWithErr(w, 500, "Couldn't retrieve api key")
+		return
+	}
+
+	ctx := context.Background()
+	defer ctx.Done()
+	usr, err := cfg.DB.GetUserByApiKey(ctx, apiKey)
+	if err != nil {
+		log.Printf("Error retrieving user with api key: %v", err)
+		respondWithErr(w, 500, "Couldn't find user with this ApiKey")
+		return
+	}
+
+	respondWithJSON(w, 200, databaseUserToUser(usr))
 }

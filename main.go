@@ -54,6 +54,7 @@ func main() {
 	v1Router.Get("/err", errHandler)
 
 	v1Router.Post("/users", apiCfg.crtUsrHandler)
+	v1Router.Get("/users", apiCfg.getUserByKey)
 
 	router.Mount("/v1", v1Router)
 	srv := &http.Server{
