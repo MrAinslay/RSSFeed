@@ -44,3 +44,7 @@ func (cfg *apiConfig) crtUsrHandler(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJSON(w, 200, databaseUserToUser(usr))
 }
+
+func (cfg *apiConfig) getUserByKey(w http.ResponseWritter r *http.Request) {
+ 
+}
