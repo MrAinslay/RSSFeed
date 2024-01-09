@@ -16,12 +16,13 @@ type User struct {
 }
 
 type Feed struct {
-	ID        uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Name      string    `json:"name"`
-	Url       string    `json:"url"`
-	UserID    uuid.UUID `json:"user_id"`
+	ID            uuid.UUID  `json:"id"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
+	Name          string     `json:"name"`
+	Url           string     `json:"url"`
+	UserID        uuid.UUID  `json:"user_id"`
+	LastFetchedAt *time.Time `json:"last_fetched_at"`
 }
 
 type FeedFollow struct {
@@ -32,14 +33,26 @@ type FeedFollow struct {
 	FeedID    uuid.UUID `json:"feed_id"`
 }
 
+type Post struct {
+	ID          uuid.UUID `json:"id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_At"`
+	Title       string    `json:"title"`
+	Url         string    `json:"url"`
+	Description string    `json:"description"`
+	PublishedAt time.Time `json:"published_at"`
+	FeedID      uuid.UUID `json:"feed_id"`
+}
+
 func databaseFeedToFeed(feed database.Feed) Feed {
 	return Feed{
-		ID:        feed.ID,
-		CreatedAt: feed.CreatedAt,
-		UpdatedAt: feed.UpdatedAt,
-		Name:      feed.Name,
-		Url:       feed.Url,
-		UserID:    feed.UserID,
+		ID:            feed.ID,
+		CreatedAt:     feed.CreatedAt,
+		UpdatedAt:     feed.UpdatedAt,
+		Name:          feed.Name,
+		Url:           feed.Url,
+		UserID:        feed.UserID,
+		LastFetchedAt: &feed.LastFetchedAt.Time,
 	}
 }
 
@@ -75,6 +88,27 @@ func databaseFeedFollowsToFeedFollows(feedFollows []database.FeedFollow) []FeedF
 	result := make([]FeedFollow, len(feedFollows))
 	for i, fdFollow := range feedFollows {
 		result[i] = databaseFeedFollowToFeedFollow(fdFollow)
+	}
+	return result
+}
+
+func databasePostToPost(pst database.Post) Post {
+	return Post{
+		ID:          pst.ID,
+		CreatedAt:   pst.CreatedAt,
+		UpdatedAt:   pst.UpdatedAt,
+		Title:       pst.Title,
+		Url:         pst.Url,
+		Description: pst.Description,
+		PublishedAt: pst.PublishedAt,
+		FeedID:      pst.FeedID,
+	}
+}
+
+func databasePostsToPosts(psts []database.Post) []Post {
+	result := make([]Post, len(psts))
+	for i, pst := range psts {
+		result[i] = databasePostToPost(pst)
 	}
 	return result
 }

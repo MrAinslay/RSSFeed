@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/MrAinslay/RSSFeed/internal/database"
 	"github.com/go-chi/chi/v5"
@@ -20,12 +21,10 @@ type apiConfig struct {
 
 func main() {
 	godotenv.Load("keys.env")
-
 	db, err := sql.Open("postgres", os.Getenv("GOOSE_DBSTRING"))
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	dbQueries := database.New(db)
 	apiCfg := apiConfig{
 		DB: dbQueries,
@@ -55,6 +54,7 @@ func main() {
 	v1Router.Get("/users", apiCfg.getUserByKey)
 	v1Router.Get("/feeds", apiCfg.handlerGetFeeds)
 	v1Router.Get("/feed_follows", apiCfg.middlewareAuth(apiCfg.handlerGetFeedFollows))
+	v1Router.Get("/posts", apiCfg.middlewareAuth(apiCfg.handlerGetPostsByUser))
 
 	v1Router.Post("/feeds", apiCfg.middlewareAuth(apiCfg.handlerCreateFeed))
 	v1Router.Post("/feed_follows", apiCfg.middlewareAuth(apiCfg.handlerAddFeedFollow))
@@ -69,6 +69,10 @@ func main() {
 		Addr:    ":" + port,
 		Handler: router,
 	}
+
+	const collectionConcurrency = 10
+	const collectionInterval = time.Minute
+	go startScraping(dbQueries, collectionConcurrency, collectionInterval)
 
 	log.Printf("Serving on port: %s\n", port)
 	log.Fatal(srv.ListenAndServe())
