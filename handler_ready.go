@@ -13,3 +13,7 @@ func readinessHandler(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJSON(w, 200, rsp)
 }
+
+func errHandler(w http.ResponseWriter, r *http.Request) {
+	respondWithErr(w, 500, "Internal Server Error")
+}

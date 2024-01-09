@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -25,13 +24,10 @@ func (cfg *apiConfig) crtUsrHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.Background()
-	defer ctx.Done()
-
 	u, _ := uuid.NewV7()
 	timeNow := time.Now()
 
-	usr, err := cfg.DB.CreateUser(ctx, database.CreateUserParams{
+	usr, err := cfg.DB.CreateUser(r.Context(), database.CreateUserParams{
 		ID:        u,
 		CreatedAt: timeNow,
 		UpdatedAt: timeNow,
@@ -54,9 +50,7 @@ func (cfg *apiConfig) getUserByKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.Background()
-	defer ctx.Done()
-	usr, err := cfg.DB.GetUserByApiKey(ctx, apiKey)
+	usr, err := cfg.DB.GetUserByApiKey(r.Context(), apiKey)
 	if err != nil {
 		log.Printf("Error retrieving user with api key: %v", err)
 		respondWithErr(w, 500, "Couldn't find user with this ApiKey")
